@@ -13,6 +13,7 @@ var createTask = function (taskText, taskDate, taskList) {
   // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
 
+  auditTask(taskLi)
 
   // append to ul list on the page
   $("#list-" + taskList).append(taskLi);
@@ -43,6 +44,22 @@ var loadTasks = function () {
 var saveTasks = function () {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
+
+var auditTask = function (taskEl) {
+  var date = $(taskEl).find("span").text().trim();
+
+  var time = moment(date, "L").set("hour", 17)
+
+  $(taskEl).removeClass("list-group-item-warning list-group-item-danger")
+
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass("list-group-item-danger")
+  }
+  else if (Math.abs(moment().diff(time, "days")) <= 2) {
+    $(taskEl).addClass("list-group-item-warning")
+  }
+
+}
 
 $(".list-group").on("click", "p", function () {
   var text = $(this).text().trim();
@@ -96,6 +113,8 @@ $(".list-group").on("change", "input[type='text']", function () {
   var taskSpan = $("<span>").addClass("badge badge-primary badge-pill").text(date);
 
   $(this).replaceWith(taskSpan);
+
+  auditTask($(taskSpan).closest(".list-group-item"));
 })
 
 // modal was triggered
